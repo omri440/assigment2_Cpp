@@ -1,0 +1,3 @@
+C:/Users/omri.asulin/Development/assigment2_Cpp/cmake-build-debug/CMakeFiles/assigment2_Cpp.dir
+C:/Users/omri.asulin/Development/assigment2_Cpp/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/omri.asulin/Development/assigment2_Cpp/cmake-build-debug/CMakeFiles/rebuild_cache.dir
