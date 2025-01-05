@@ -1,76 +1,74 @@
 #include "Product.h"
 
-// Initialize static ID generator
-int Product::nextId = 1;
+// Initialize static member
+int Product::next_id = 1;
 
-// Default Constructor
-Product::Product() : name("Unknown"), price(0.0), quantity(0), id(nextId++) {}
+// Copy constructor with the same ID
+Product::Product(const Product& p) : id(p.id), name(p.name), price(p.price), quantity(p.quantity) {}
 
-// Parameterized Constructor
-Product::Product(const string& name, double price, int quantity)
-    : name(name), price(price), quantity(quantity), id(nextId++) {}
+// Copy constructor with a limited quantity
+Product::Product(const Product& p, int q) : id(p.id), name(p.name), price(p.price), quantity(q) {}
 
-// Copy Constructor
-Product::Product(const Product& other)
-    : name(other.name), price(other.price), quantity(other.quantity), id(other.id) {}
+// Constructor with a new ID
+Product::Product(string name, double price, int q) : id(next_id++), name(std::move(name)), price(price), quantity(q) {}
 
-// Destructor
-Product::~Product() {}
-
-// Getters
-string Product::getName() const {
-    return name;
-}
-
-double Product::getPrice() const {
+Product::Product(int id, string name, double price, int quantity)
+    : id(id), name(std::move(name)), price(price), quantity(quantity) {}
+// Getter Methods
+double Product::get_price() const {
     return price;
 }
 
-int Product::getQuantity() const {
+unsigned int Product::get_quantity() const {
     return quantity;
 }
 
-int Product::getId() const {
+int Product::get_id() const {
     return id;
 }
 
-// Setters
-void Product::setName(const string& name) {
-    this->name = name;
+void Product::addQuantity(unsigned int additionalQuantity) {
+    this->quantity += additionalQuantity;
 }
-
-void Product::setPrice(double price) {
-    this->price = price;
-}
-
-void Product::setQuantity(int quantity) {
-    this->quantity = quantity;
-}
-
 // Operator Overloads
-Product& Product::operator=(const Product& other) {
-    if (this != &other) {
-        name = other.name;
-        price = other.price;
-        quantity = other.quantity;
-        // ID remains unchanged
-    }
-    return *this;
+ostream& operator<<(ostream& os, const Product& p) {
+    os << "Product [ID: " << p.id
+       << ", Name: " << p.name
+       << ", Price: " << p.price
+       << ", Quantity: " << p.quantity << "]";
+    return os;
 }
 
 bool Product::operator==(const Product& other) const {
     return id == other.id;
 }
 
-bool Product::operator!=(const Product& other) const {
-    return !(*this == other);
+bool Product::operator==(int other_id) const {
+    return id == other_id;
 }
 
-// Overload << to print product details
-ostream& operator<<(ostream& os, const Product& product) {
-    os << "Product ID: " << product.id << "\n"
-       << "Name: " << product.name << "\n"
-       << "Price: " << product.price << "\n"
-       << "Quantity: " << product.quantity << "\n";
-    return os;
+bool Product::operator!=(const Product& other) const {
+    return id != other.id;
+}
+
+bool Product::operator!=(int other_id) const {
+    return id != other_id;
+}
+
+Product& Product::operator++() {
+    ++quantity;
+    return *this;
+}
+
+Product& Product::operator+=(unsigned int q) {
+    quantity += q;
+    return *this;
+}
+
+Product& Product::operator-=(unsigned int q) {
+    if (q > quantity) {
+        throw std::out_of_range("Cannot decrease by more than the available quantity.");
+    }
+    quantity -= q;
+    return *this;
 }

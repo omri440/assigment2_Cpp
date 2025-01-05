@@ -1,47 +1,42 @@
 #ifndef PRODUCT_H
 #define PRODUCT_H
 
-#include <string>
 #include <iostream>
+#include <string>
 using namespace std;
 
 class Product {
 private:
-    string name;    // Product name
-    double price;   // Price per unit
-    int quantity;   // Available quantity
-    int id;         // Unique product ID
+    static int next_id;         // Static member to generate unique IDs for products.
+    int id;                     // Unique ID for each product.
+    string name;                // Name of the product.
+    double price;               // Price of the product.
+    unsigned int quantity;      // Quantity available of the product.
 
-    static int nextId; // Static variable to generate unique IDs
+    friend class Supplier;      // Allows Supplier class to access private members.
 
 public:
     // Constructors
-    Product();
-    Product(const string& name, double price, int quantity);
-
-    // Copy Constructor
-    Product(const Product& other);
-
-    // Destructor
-    ~Product();
-
-    // Getters and Setters
-    string getName() const;
-    double getPrice() const;
-    int getQuantity() const;
-    int getId() const;
-
-    void setName(const string& name);
-    void setPrice(double price);
-    void setQuantity(int quantity);
-
+    Product(const Product& p); // Copy constructor with the same ID.
+    Product(const Product& p, int q); // Copy constructor with a limited quantity.
+    Product(string name, double price, int q = 1); // Constructor with a new ID.
+    Product(int id, string name, double price, int quantity = 1);
+    // Getter Methods
+    double get_price() const; // Returns the price of the product.
+    unsigned int get_quantity() const; // Returns the quantity of the product.
+    int get_id() const; // Returns the product ID.
+    const std::string& get_name() const;
+    void addQuantity(unsigned int additionalQuantity);
     // Operator Overloads
-    Product& operator=(const Product& other);
-    bool operator==(const Product& other) const;
-    bool operator!=(const Product& other) const;
+    friend ostream& operator<<(ostream& os, const Product& p); // Prints product details.
+    bool operator==(const Product& other) const; // Compares product IDs.
+    bool operator==(int other_id) const; // Compares product ID to an integer.
+    bool operator!=(const Product& other) const; // Checks inequality of product IDs.
+    bool operator!=(int other_id) const; // Checks inequality with an integer.
 
-    // Print product details
-    friend ostream& operator<<(ostream& os, const Product& product);
+    Product& operator++(); // Increments the product quantity by 1.
+    Product& operator+=(unsigned int q); // Adds a specific quantity to the product.
+    Product& operator-=(unsigned int q); // Decreases a specific quantity of the product.
 };
 
-#endif
+#endif // PRODUCT_H

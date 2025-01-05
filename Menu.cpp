@@ -1,19 +1,50 @@
 #include "Menu.h"
 #include <iostream>
+#include <limits>
+
 using namespace std;
 
-Menu::Menu() : supplier(), buyerCart() {}
+Menu::Menu() {}
+
+int Menu::getValidatedInt(const std::string& prompt) {
+    int value;
+    while (true) {
+        cout << prompt;
+        cin >> value;
+        if (cin.fail() || value < 0) {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << "Invalid input. Please enter a non-negative number." << endl;
+        } else {
+            return value;
+        }
+    }
+}
+
+double Menu::getValidatedDouble(const std::string& prompt) {
+    double value;
+    while (true) {
+        cout << prompt;
+        cin >> value;
+        if (cin.fail() || value < 0.0) {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << "Invalid input. Please enter a non-negative number." << endl;
+        } else {
+            return value;
+        }
+    }
+}
 
 void Menu::mainMenu() {
     int choice;
-
     do {
-        cout << "\nMain Menu:\n";
-        cout << "1. Enter Supplier Menu\n";
-        cout << "2. Enter Buyer Menu\n";
-        cout << "3. Exit\n";
-        cout << "Enter your choice: ";
-        cin >> choice;
+        cout << "Main Menu:\n"
+             << "1. Supplier Menu\n"
+             << "2. Buyer Menu\n"
+             << "3. Exit\n"
+             << "Enter your choice: ";
+        choice = getValidatedInt("");
 
         switch (choice) {
             case 1:
@@ -23,10 +54,10 @@ void Menu::mainMenu() {
                 buyerMenu();
                 break;
             case 3:
-                cout << "Goodbye!\n";
+                cout << "Goodbye!" << endl;
                 break;
             default:
-                cout << "Invalid choice. Please try again.\n";
+                cout << "Invalid choice. Please try again." << endl;
         }
     } while (choice != 3);
 }
@@ -34,70 +65,77 @@ void Menu::mainMenu() {
 void Menu::supplierMenu() {
     int choice;
     do {
-        cout << "\nSupplier Menu:\n";
-        cout << "1. View All Products\n";
-        cout << "2. Add New Product\n";
-        cout << "3. Update Product Price\n";
-        cout << "4. Remove Product\n";
-        cout << "5. View Total Profit\n";
-        cout << "6. Return to Main Menu\n";
-        cout << "Enter your choice: ";
-        cin >> choice;
+        cout << "\nSupplier Menu:\n"
+             << "1. View available products\n"
+             << "2. Add a new product to inventory\n"
+             << "3. Update the price of an existing product\n"
+             << "4. Remove a product from inventory\n"
+             << "5. View total profit\n"
+             << "6. Return to main menu\n"
+             << "Enter your choice: ";
+        choice = getValidatedInt("");
 
         switch (choice) {
             case 1:
-                supplier.printcart();
+                supplier.viewProducts();
                 break;
-            case 2: {
-                string name;
-                double price;
-                int quantity;
 
-                cout << "Enter product name: ";
-                cin >> name;
-                cout << "Enter product price: ";
-                cin >> price;
-                cout << "Enter product quantity: ";
-                cin >> quantity;
+            case 2: { // Add product
+                supplier.viewProducts();
+                int id = getValidatedInt("Enter product ID: ");
+                Product* existingProduct = supplier[id];
 
-                Product newProduct(name, price, quantity);
-                supplier.addProductToInventory(newProduct);
-
-                cout << "Product added successfully.\n";
-                break;
-            }
-            case 3: {
-                int productId;
-                double newPrice;
-
-                cout << "Enter product ID to update: ";
-                cin >> productId;
-                cout << "Enter new price: ";
-                cin >> newPrice;
-
-                supplier.updateProductPrice(productId, newPrice);
-                break;
-            }
-            case 4: {
-                int productId;
-
-                cout << "Enter product ID to remove: ";
-                cin >> productId;
-
-                if (supplier.removeProduct(productId)) {
-                    cout << "Product removed successfully.\n";
-                } else {
-                    cout << "Product not found.\n";
+                if (existingProduct) { // If product exists
+                    int additionalQuantity = getValidatedInt("Enter additional quantity to add: ");
+                    existingProduct->addQuantity(additionalQuantity);
+                    cout << "Updated product quantity successfully." << endl;
+                } else { // If product doesn't exist
+                    string name;
+                    double price;
+                    int quantity;
+                    cout << "Product ID not found. Enter product details:\n";
+                    cout << "Enter product name: ";
+                    cin >> name;
+                    price = getValidatedDouble("Enter product price: ");
+                    quantity = getValidatedInt("Enter product quantity: ");
+                    supplier.addProduct(Product(id, name, price, static_cast<unsigned int>(quantity)));
+                    cout << "New product added successfully." << endl;
                 }
                 break;
             }
-            case 5:
-                cout << "Total Profit: " << supplier.getTotalProfit() << endl; // Fixed line
+
+            case 3: { // Update product price
+                int id = getValidatedInt("Enter product ID to update price: ");
+                double newPrice = getValidatedDouble("Enter new price: ");
+                if (supplier.change_price(id, newPrice)) {
+                    cout << "Price updated successfully." << endl;
+                } else {
+                    cout << "Product not found or update failed." << endl;
+                }
                 break;
+            }
+
+            case 4: { // Remove product
+                int id = getValidatedInt("Enter product ID to remove: ");
+                Product* product = supplier[id];
+                if (product && supplier.remove_Product(*product)) {
+                    cout << "Product removed successfully." << endl;
+                } else {
+                    cout << "Product not found or removal failed." << endl;
+                }
+                break;
+            }
+
+            case 5: // View total profit
+                cout << "Total profit: " << supplier.get_total_profit() << endl;
+                break;
+
             case 6:
-                return;
+                cout << "Returning to main menu." << endl;
+                break;
+
             default:
-                cout << "Invalid choice. Please try again.\n";
+                cout << "Invalid choice. Please try again." << endl;
         }
     } while (choice != 6);
 }
@@ -105,65 +143,74 @@ void Menu::supplierMenu() {
 void Menu::buyerMenu() {
     int choice;
     do {
-        cout << "\nBuyer Menu:\n";
-        cout << "1. View All Products\n";
-        cout << "2. Add Product to Cart\n";
-        cout << "3. Remove Product from Cart\n";
-        cout << "4. View Cart and Total Price\n";
-        cout << "5. Checkout\n";
-        cout << "6. Return to Main Menu\n";
-        cout << "Enter your choice: ";
-        cin >> choice;
+        cout << "\nBuyer Menu:\n"
+             << "1. View available products\n"
+             << "2. Add a product to cart\n"
+             << "3. Remove a product from cart\n"
+             << "4. View cart contents and total price\n"
+             << "5. Complete purchase\n"
+             << "6. Return to main menu\n"
+             << "Enter your choice: ";
+        choice = getValidatedInt("");
 
         switch (choice) {
-            case 1:
-                supplier.printcart();
+            case 1: // View products
+                supplier.viewProducts();
                 break;
-            case 2: {
-                int productId, quantity;
 
-                cout << "Enter product ID to add: ";
-                cin >> productId;
-                cout << "Enter quantity: ";
-                cin >> quantity;
-
-                for (const auto& product : supplier.getProducts()) {
-                    if (product.getId() == productId) {
-                        Product buyerProduct = product;
-                        buyerProduct.setQuantity(quantity);
-                        buyerCart.addProduct(buyerProduct);
-                        cout << "Product added to cart.\n";
-                        break;
-                    }
-                }
-                break;
-            }
-            case 3: {
-                int productId;
-
-                cout << "Enter product ID to remove: ";
-                cin >> productId;
-
-                if (buyerCart.removeProduct(productId)) {
-                    cout << "Product removed from cart.\n";
+            case 2: { // Add to cart
+                int id = getValidatedInt("Enter product ID to add: ");
+                int quantity = getValidatedInt("Enter quantity: ");
+                Product* product = supplier[id];
+                if (product && product->get_quantity() >= static_cast<unsigned int>(quantity)) {
+                    buyerCart.add_Product(*product, static_cast<unsigned int>(quantity));
+                    supplier.remove_Product(*product, static_cast<unsigned int>(quantity));
+                    cout << "Added to cart." << endl;
                 } else {
-                    cout << "Product not found in cart.\n";
+                    cout << "Invalid product ID or insufficient stock." << endl;
                 }
                 break;
             }
-            case 4:
-                cout << "Your Cart:\n";
+
+            case 3: { // Remove from cart
+                int id = getValidatedInt("Enter product ID to remove: ");
+                int quantity = getValidatedInt("Enter quantity: ");
+                Product* product = buyerCart[id];
+                if (product && product->get_quantity() >= static_cast<unsigned int>(quantity)) {
+                    buyerCart.remove_Product(*product, static_cast<unsigned int>(quantity));
+                    supplier.addProduct(*product); // Add back to supplier's inventory
+                    cout << "Removed from cart." << endl;
+                } else {
+                    cout << "Invalid product ID or insufficient quantity in cart." << endl;
+                }
+                break;
+            }
+
+            case 4: // View cart
                 buyerCart.printcart();
-                cout << "Total Price: " << buyerCart.getTotalPrice() << endl;
                 break;
-            case 5:
-                cout << "Checkout completed. Thank you!\n";
-                buyerCart = ShoppingCart(); // Clear the cart
+
+            case 5: { // Complete purchase
+                double totalPrice = buyerCart.Get_total();
+                cout << "Total price: " << totalPrice << endl;
+                char confirm;
+                cout << "Confirm purchase? (y/n): ";
+                cin >> confirm;
+                if (tolower(confirm) == 'y') {
+                    cout << "Purchase completed successfully!" << endl;
+                    buyerCart = ShoppingCart(); // Reset the cart
+                } else {
+                    cout << "Purchase cancelled." << endl;
+                }
                 break;
+            }
+
             case 6:
-                return;
+                cout << "Returning to main menu." << endl;
+                break;
+
             default:
-                cout << "Invalid choice. Please try again.\n";
+                cout << "Invalid choice. Please try again." << endl;
         }
     } while (choice != 6);
 }

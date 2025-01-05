@@ -5,22 +5,25 @@
 
 class Supplier : public ShoppingCart {
 private:
-    double totalProfit;
+    double counter = 0; // Total money made by customer purchases.
 
 public:
-    // Constructors and Destructor
-    Supplier();
-    Supplier(const Supplier& other);
-    ~Supplier();
+    // Constructors
+    Supplier();  // Default constructor.
+    ~Supplier(); // Destructor.
 
     // Methods
-    void addProductToInventory(const Product& product);
-    void updateProductPrice(int productId, double newPrice);
-    void sellProduct(int productId, int quantity);
-    double getTotalProfit() const;
+    bool remove_Product(const Product& p);               // Removes a product and updates counter.
+    bool remove_Product(const Product& p, int quantity); // Removes a specific quantity and updates counter.
+    bool customer_purchases(const Product& p);           // Updates stock and profit for a single product.
+    bool customer_purchases(const ShoppingCart& cart);   // Updates stock and profit for multiple products.
+    bool change_price(int id, double new_price);         // Changes the price of a product by ID.
+    double get_total_profit() const;                     // Returns the total profit (counter - total_price).
+    bool addProduct(const Product& p);                   // Adds a product to inventory.
+    void viewProducts() const;                           // Views all products in inventory.
 
-    // Operators
-    Supplier& operator=(const Supplier& other);
+    // Operator Overloads
+    friend ostream& operator<<(ostream& os, const Supplier& supplier); // Prints supplier details.
 };
 
-#endif
+#endif // SUPPLIER_H

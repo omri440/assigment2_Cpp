@@ -1,20 +1,24 @@
 #ifndef MENU_H
 #define MENU_H
 
-#include "ShoppingCart.h"
 #include "Supplier.h"
+#include "ShoppingCart.h"
 
 class Menu {
 private:
-    Supplier supplier;   // Supplier object to manage inventory and sales
-    ShoppingCart buyerCart; // Buyer’s shopping cart
+    Supplier supplier;
+    ShoppingCart buyerCart;
+
+    // Helper methods for input validation
+    int getValidatedInt(const std::string& prompt);
+    double getValidatedDouble(const std::string& prompt);
 
 public:
-    Menu(); // Constructor
+    Menu();
 
-    void mainMenu();      // Displays the main menu
-    void supplierMenu();  // Handles supplier-related actions
-    void buyerMenu();     // Handles buyer-related actions
+    void mainMenu();
+    void supplierMenu();
+    void buyerMenu();
 };
 
 #endif
