@@ -20,7 +20,7 @@ public:
     bool change_price(int id, double new_price);         // Changes the price of a product by ID.
     double get_total_profit() const;                     // Returns the total profit (counter - total_price).
     bool addProduct(const Product& p);                   // Adds a product to inventory.
-    void viewProducts() const;                           // Views all products in inventory.
+    void viewProducts(std::ostream& os) const;                       // Views all products in inventory.
 
     // Operator Overloads
     friend ostream& operator<<(ostream& os, const Supplier& supplier); // Prints supplier details.

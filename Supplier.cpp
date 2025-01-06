@@ -7,34 +7,32 @@ Supplier::Supplier() : ShoppingCart(), counter(0) {}
 // Destructor
 Supplier::~Supplier() {}
 
-// Removes a product from the cart and updates the counter
+// Removes a product from the cart without affecting the counter
 bool Supplier::remove_Product(const Product& p) {
     for (auto it = items.begin(); it != items.end(); ++it) {
         if (*it == p) {
-            counter -= it->get_price() * it->get_quantity();
-            items.erase(it);
             total_price -= it->get_price() * it->get_quantity();
+            items.erase(it);
             return true;
         }
     }
     return false; // Product not found
 }
 
-// Removes a specific quantity of a product and updates the counter
+// Removes a specific quantity of a product without affecting the counter
 bool Supplier::remove_Product(const Product& p, int quantity) {
     for (auto& item : items) {
         if (item == p) {
             if (static_cast<int>(item.get_quantity()) > quantity) {
-                item -= quantity;
-                counter -= p.get_price() * quantity;
-                total_price -= p.get_price() * quantity;
+                item -= quantity; // הפחתת הכמות מהמוצר
+                total_price -= p.get_price() * quantity; // עדכון מחיר המלאי
                 return true;
             } else {
-                return remove_Product(p); // Remove completely if quantity matches or exceeds
+                return remove_Product(p); // אם הכמות שמסירים שווה או עולה על הכמות הקיימת, מסירים את כל המוצר
             }
         }
     }
-    return false; // Product not found
+    return false; // מוצר לא נמצא
 }
 
 // Updates stock and profit for a single product
@@ -67,7 +65,7 @@ bool Supplier::customer_purchases(const ShoppingCart& cart) {
 bool Supplier::change_price(int id, double new_price) {
     for (auto& item : items) {
         if (item.get_id() == id) {
-            item.price = new_price;// Update the price directly
+            item.price = new_price; // Update the price directly
             return true;
         }
     }
@@ -91,15 +89,12 @@ ostream& operator<<(ostream& os, const Supplier& supplier) {
 }
 
 // View available products
-void Supplier::viewProducts() const {
-    if (items.empty()) {
-        std::cout << "No products available.\n";
-    } else {
-        std::cout << "Supplier Inventory:\n";
-        for (const auto& item : items) {
-            std::cout << item << std::endl;
-        }
+void Supplier::viewProducts(std::ostream& os) const {
+    os << "Supplier Details:\n";
+    for (const auto& item : items) {
+        os << item << std::endl;
     }
+    os << "Total Profit: " << get_total_profit() << std::endl;
 }
 
 // Add a new product to inventory
